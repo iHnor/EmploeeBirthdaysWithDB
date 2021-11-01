@@ -18,10 +18,10 @@ namespace todoList
             this.Done = Done;
             this.List_Group = List_Group;
         }
-        public GetTitle(){return Title;}
-        public GetDesc(){return Description;}
-        public GetDueDate(){return DueDate;}
-        public GetDone(){return Done;}
-        public GetListGroup(){return List_Group;}
+        public string GetTitle(){return Title;}
+        public string GetDesc(){return Description;}
+        public DateTime GetDueDate(){return DueDate;}
+        public bool GetDone(){return Done;}
+        public int GetListGroup(){return List_Group;}
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Npgsql;
-
+using System.Threading.Tasks;
 namespace todoList
 {
     // class Task
@@ -10,35 +10,26 @@ namespace todoList
     // }
     class ConnectToBD
     {
-        private List<TaskList> tasks = new List<TaskList>();
+        // private List<TaskList> tasks = new List<TaskList>();
 
-        private async Task ReadTaskList()
+        //Read
+        public async Task<List<TaskList>> Read(NpgsqlConnection conn)
         {
 
-            var connString = "Host=127.0.0.1;Username=admin;Password=12341234qs;Database=todolist";
-            await using var conn = new NpgsqlConnection(connString);
-            await conn.OpenAsync();
+            List<TaskList> tasks = new List<TaskList>();
 
-            await using (var cmd = new NpgsqlCommand("Select name, date from Employee_Birthday", conn))
+
+            await using (var cmd = new NpgsqlCommand("Select \"Title\", \"Description\", \"DueDate\", \"Done\", \"List_Group\" from todo", conn))
             await using (var reader = await cmd.ExecuteReaderAsync())
                 while (await reader.ReadAsync())
                 {
-                    tasks.Add(new TaskList());
+                    tasks.Add(new TaskList(reader.GetString(0), reader.GetString(1), reader.GetDateTime(2), reader.GetBoolean(3), reader.GetInt32(4)));
                 }
-        }
-
-        private async void getList()
-        {
-            Task read = ReadTaskList();
-            read.Wait();
+            return tasks;
         }
 
         //Create
 
-        //Read
-        public void Read()
-        {
-        }
 
         //Update
 
@@ -48,8 +39,16 @@ namespace todoList
     {
         static void Main(string[] args)
         {
-            ConnectToBD connect = new ConnectToBD();
+            MainAsync().Wait();
+        }
+        static async Task MainAsync()
+        {
+            var connString = "Host=127.0.0.1;Username=admin;Password=12341234qs;Database=todolist";
+            await using var conn = new NpgsqlConnection(connString);
+            await conn.OpenAsync();
 
+            ConnectToBD connect = new ConnectToBD();
+            List<TaskList> taskLists = await connect.Read(conn);
         }
     }
 }
