@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using Npgsql;
 
 namespace todoList
 {
@@ -8,13 +10,12 @@ namespace todoList
     // }
     class ConnectToBD
     {
-        private List<Employee> tasks = new List<Employee>();
+        private List<TaskList> tasks = new List<TaskList>();
 
-        private async Task ReadEmployees()
+        private async Task ReadTaskList()
         {
+
             var connString = "Host=127.0.0.1;Username=admin;Password=12341234qs;Database=todolist";
-
-
             await using var conn = new NpgsqlConnection(connString);
             await conn.OpenAsync();
 
@@ -22,23 +23,21 @@ namespace todoList
             await using (var reader = await cmd.ExecuteReaderAsync())
                 while (await reader.ReadAsync())
                 {
-                    employees.Add(new Employee(reader.GetString(0), reader.GetDateTime(1)));
+                    tasks.Add(new TaskList());
                 }
         }
 
-        private async List<Employee> getList()
+        private async void getList()
         {
-            Task read = ReadEmployees();
+            Task read = ReadTaskList();
             read.Wait();
         }
 
         //Create
 
         //Read
-        public List<Employee> Read()
+        public void Read()
         {
-            
-            return employees;
         }
 
         //Update

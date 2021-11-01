@@ -10,7 +10,7 @@ namespace EmployeeBirthdays
     {
         private List<Employee> employees = new List<Employee>();
 
-        private async Task ReadEmployees()
+        public async Task<List<Employee>> ReadEmployees()
         {
             var connString = "Host=127.0.0.1;Username=admin;Password=12341234qs;Database=todolist";
 
@@ -24,12 +24,6 @@ namespace EmployeeBirthdays
                 {
                     employees.Add(new Employee(reader.GetString(0), reader.GetDateTime(1)));
                 }
-        }
-
-        public List<Employee> getListOfEmployees()
-        {
-            Task read = ReadEmployees();
-            read.Wait();
             return employees;
         }
     }
@@ -56,13 +50,19 @@ namespace EmployeeBirthdays
     {
         static void Main(string[] args)
         {
+            MainAsync().Wait();
+        }
+
+        static async Task MainAsync()
+        {
             int planingHorizon = 1;
             ConnectToBD connect = new ConnectToBD();
-            List<Employee> listOfEmployee = new List<Employee>(connect.getListOfEmployees());
+            List<Employee> listOfEmployee = await connect.ReadEmployees();
 
             EmployeesSorter sorter = new EmployeesSorter(listOfEmployee);
             PrintBirthday(sorter, planingHorizon);
         }
+
         static void PrintBirthday(EmployeesSorter sorter, int plan)
         {
             DateTime today = DateTime.Now;
