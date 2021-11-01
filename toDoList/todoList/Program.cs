@@ -29,11 +29,26 @@ namespace todoList
         }
 
         //Create
-
+        public async Task<List<TaskList>> Create(NpgsqlConnection conn)
+        {
+            return tasks;
+        }
 
         //Update
+        public async Task<List<TaskList>> Update(NpgsqlConnection conn)
+        {
+        
+            return tasks;
+        }
+
 
         //Delete
+        public async Task<List<TaskList>> Delete(NpgsqlConnection conn)
+        {
+        
+            return tasks;
+        }
+
     }
     class Program
     {
