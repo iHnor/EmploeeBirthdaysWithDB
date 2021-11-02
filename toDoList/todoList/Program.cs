@@ -4,15 +4,10 @@ using Npgsql;
 using System.Threading.Tasks;
 namespace todoList
 {
-    // class Task
-    // {
-
-    // }
     class ConnectToBD
     {
         private List<TaskList> tasks = new List<TaskList>();
 
-        //Read
         public async Task<List<TaskList>> Read(NpgsqlConnection conn)
         {
 
@@ -29,8 +24,7 @@ namespace todoList
             return tasks;
         }
 
-        // Create
-        public async Task Create(NpgsqlConnection conn)
+        public async Task<bool> Create(NpgsqlConnection conn)
         {
             string Title = "Test title";
             string Desc = "Test Descript";
@@ -42,28 +36,48 @@ namespace todoList
             await using (var cmd = new NpgsqlCommand("INSERT INTO todo (\"Title\", \"Description\", \"DueDate\", \"Done\", \"List_Group\") VALUES (@Title, @Description, @DueDate, @Done, @List_Group)", conn))
             {
                 cmd.Parameters.AddWithValue("Title", Title);
-                cmd.Parameters.AddWithValue("Description",Desc);
+                cmd.Parameters.AddWithValue("Description", Desc);
                 cmd.Parameters.AddWithValue("DueDate", DueDate);
                 cmd.Parameters.AddWithValue("Done", Done);
                 cmd.Parameters.AddWithValue("List_Group", List_Group);
                 await cmd.ExecuteNonQueryAsync();
             }
+            return true;
         }
 
-        // //Update
-        // public async Task<List<TaskList>> Update(NpgsqlConnection conn)
-        // {
+        public async Task<bool> Update(NpgsqlConnection conn)
+        {
+            string Title = "Update title";
+            string Desc = "";
+            DateTime DueDate = DateTime.Now;
+            bool Done = true;
+            int List_Group = 2;
+            int id = 2;
 
-        //     return tasks;
-        // }
+            await using (var cmd = new NpgsqlCommand("UPDATE todo SET \"Title\"=@Title, \"Description\"= @Description, \"DueDate\" =  @DueDate, \"Done\" =  @Done, \"List_Group\" =  @List_Group WHERE id=@id", conn))
+            {
+                cmd.Parameters.AddWithValue("Title", Title);
+                cmd.Parameters.AddWithValue("Description", Desc);
+                cmd.Parameters.AddWithValue("DueDate", DueDate);
+                cmd.Parameters.AddWithValue("Done", Done);
+                cmd.Parameters.AddWithValue("List_Group", List_Group);
+                cmd.Parameters.AddWithValue("id", id);
+                await cmd.ExecuteNonQueryAsync();
+            }
+            return true;
+        }
 
+        public async Task<bool> Delete(NpgsqlConnection conn)
+        {
+            int delId = 5;
+            await using (var cmd = new NpgsqlCommand("DELETE FROM todo WHERE \"id\"=@id;", conn))
+            {
+                cmd.Parameters.AddWithValue("id", delId);
+                await cmd.ExecuteNonQueryAsync();
+            }
 
-        // //Delete
-        // public async Task<List<TaskList>> Delete(NpgsqlConnection conn)
-        // {
-
-        //     return tasks;
-        // }
+            return true;
+        }
 
     }
     class Program
@@ -80,11 +94,15 @@ namespace todoList
 
             ConnectToBD connect = new ConnectToBD();
 
-            List<TaskList> taskLists = await connect.Read(conn);
-            // Task CreateTask = connect.Create(conn);
-            // CreateTask.Wait();
+            // bool result = await connect.Create(conn);
+            // bool result = await connect.Delete(conn);
+            // bool result = await connect.Update(conn);
 
-            Print(taskLists);
+            
+
+            // List<TaskList> taskLists = await connect.Read(conn);
+
+            // Print(taskLists);
         }
         static void Print(List<TaskList> taskLists)
         {
