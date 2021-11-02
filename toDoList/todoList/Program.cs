@@ -9,7 +9,7 @@ namespace todoList
     {
         // private List<TodoItem> tasks = new List<TodoItem>();
 
-        public async Task<List<TodoItem>> ReadLine(NpgsqlConnection conn)
+        public async Task<List<TodoItem>> ReadDB(NpgsqlConnection conn)
         {
 
             List<TodoItem> tasks = new List<TodoItem>();
@@ -46,52 +46,19 @@ namespace todoList
             }
         }
 
-        public async Task<bool> Update(NpgsqlConnection conn, int id, string updateColumn, string inputData)
+        public async Task<bool> Update(NpgsqlConnection conn, int id, TaskColumn taskColumn)
         {
-            if (updateColumn == "t")
-            {
-                string data = inputData;
-                updateColumn = "Title";
-            }
-            else if (updateColumn == "dc")
-            {
-                string data = inputData;
-                updateColumn = "Description";
-            }
-
-            else if (updateColumn == "dd")
-            {
-                DateTime data = Convert.ToDateTime(inputData);
-                updateColumn = "DueDate";
-            }
-
-            else if (updateColumn == "d")
-            {
-                bool data = Convert.ToBoolean(inputData);
-                updateColumn = "Done";
-            }
-
-            else if (updateColumn == "ld")
-            {
-                int data = Convert.ToInt32(inputData);
-                updateColumn = "List_Group";
-            }
-            try
-            {
-                await using (var cmd = new NpgsqlCommand("UPDATE todo SET" + updateColumn + " = @data WHERE id=@id", conn))
+                await using (var cmd = new NpgsqlCommand("UPDATE todo SET \"Title\" = @Title, \"Description\" = @Description, \"DueDate\" = @Duedate, \"Done\" = @Done, \"List_Group\" = @List_Group WHERE id=@id", conn))
                 {
-                    // cmd.Parameters.AddWithValue(updateColumn, data);
+                    cmd.Parameters.AddWithValue("Title", taskColumn.Title);
+                    cmd.Parameters.AddWithValue("Description", taskColumn.Desc);
+                    cmd.Parameters.AddWithValue("Duedate", taskColumn.DueDate);
+                    cmd.Parameters.AddWithValue("Done", taskColumn.Done);
+                    cmd.Parameters.AddWithValue("List_Group", taskColumn.List_Group);
                     cmd.Parameters.AddWithValue("id", id);
                     await cmd.ExecuteNonQueryAsync();
                 }
                 return true;
-            }
-            catch
-            {
-                return false;
-            }
-
-
         }
 
         public async Task<bool> Delete(NpgsqlConnection conn, int idDelete)
@@ -113,6 +80,21 @@ namespace todoList
         }
 
     }
+
+    class TaskColumn
+    {
+        public string Title;
+        public string Desc;
+        public DateTime DueDate;
+        public bool Done;
+        public int List_Group;
+
+        public void Print()
+        {
+            System.Console.WriteLine($"{Title}, {Desc}, {DueDate}, {Done}, {List_Group}");
+        }
+    }
+
     class Program
     {
         static void Main(string[] args)
@@ -136,11 +118,11 @@ namespace todoList
             int id;
             while (true)
             {
-                Console.WriteLine("What do you want to do?\n C - Create; R - Read; U - Update; D - Delete; E - Exit\n");
+                Console.WriteLine("What do you want to do?\n C - Create; R - Read; U - Update; D - Delete;\n");
                 CRUD = Convert.ToChar(Console.ReadLine());
                 if (CRUD == 'R')
                 {
-                    Print(await connect.ReadLine(conn));
+                    Print(await connect.ReadDB(conn));
                 }
                 else if (CRUD == 'C')
                 {
@@ -162,14 +144,36 @@ namespace todoList
                 }
                 else if (CRUD == 'U')
                 {
+                    string chose;
                     Console.WriteLine("id:");
-                    id = Console.Read();
-                    Console.WriteLine("Update: t - Title; dc - Description; dd - DueDate; d - Done; ld - List_Group;");
-                    string typeOfUpdate = Console.ReadLine();
-                    Console.WriteLine("Value:");
-                    string data = Console.ReadLine();
+                    id = Convert.ToInt32(Console.ReadLine());
+ 
+                    TaskColumn updateTask = new TaskColumn();
+                    List<TodoItem> todoItems = await connect.ReadDB(conn);
 
-                    if (await connect.Update(conn, id, typeOfUpdate, data))
+                    Console.WriteLine("Update Title: (Y/N)");
+                    chose = Console.ReadLine();
+                    updateTask.Title = chose == "N" ? todoItems[id].GetTitle() : Console.ReadLine();
+
+                    Console.WriteLine("Update Description: (Y/N)");
+                    chose = Console.ReadLine();
+                    updateTask.Desc = chose == "N" ? todoItems[id].GetDesc() : Console.ReadLine();
+                    
+                    Console.WriteLine("Update DueDate: (Y/N)");
+                    chose = Console.ReadLine();
+                    updateTask.DueDate = chose == "N" ? todoItems[id].GetDueDate() : Convert.ToDateTime(Console.ReadLine());
+
+                    Console.WriteLine("Update Done: (Y/N)");
+                    chose = Console.ReadLine();
+                    updateTask.Done = chose == "N" ? todoItems[id].GetDone() : Convert.ToBoolean(Console.ReadLine());
+
+                    Console.WriteLine("Update List_Group: (Y/N)");
+                    chose = Console.ReadLine();
+                    updateTask.List_Group = chose == "N" ? todoItems[id].GetListGroup() : Convert.ToInt32(Console.ReadLine());
+
+                    updateTask.Print();
+
+                    if (await connect.Update(conn, id, updateTask))
                         Console.WriteLine("Update is successful\n");
                     else
                         Console.WriteLine("Update is failed. Try again!\n");
