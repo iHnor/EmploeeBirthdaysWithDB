@@ -23,5 +23,6 @@ namespace todoList
         public DateTime GetDueDate(){return DueDate;}
         public bool GetDone(){return Done;}
         public int GetListGroup(){return List_Group;}
+
     }
 }
