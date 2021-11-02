@@ -7,12 +7,7 @@ namespace EmployeesSorter
 {
     public class Connect
     {
-        // static void Main()
-        // {
-        //     List<string> list = new List<string>();
-        //     TMP(list);
-        //     // System.Console.WriteLine(list[0]);
-        // }
+       
         public void TMP(List<string> list){
             Task tmp = Read(list);
             tmp.Wait();

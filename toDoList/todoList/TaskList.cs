@@ -2,7 +2,7 @@ using System;
 
 namespace todoList
 {
-    public class TaskList
+    public class TodoItem
     {
         private string Title;
         private string Description;
@@ -10,7 +10,7 @@ namespace todoList
         private bool Done;
         private int List_Group;
 
-        public TaskList(string Title, string Description, DateTime DueDate, bool Done, int List_Group)
+        public TodoItem(string Title, string Description, DateTime DueDate, bool Done, int List_Group)
         {
             this.Title = Title;
             this.Description = Description;
